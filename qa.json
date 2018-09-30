@@ -1,17 +1,22 @@
 [
   {
-    "question": "2+2",
-    "goodAns": "4",
-    "badAns": "3"
+    "question": "12+12=?",
+    "answer": "24"
   },
   {
-    "question": "Is John Snow a King of the North?",
-    "goodAns": "True",
-    "badAns": "False"
+    "question": "5+6=?",
+    "answer": "11"
   },
   {
-    "question": "Do you use callbacks in callbacks?",
-    "goodAns": "True",
-    "badAns": "False"
+    "question": "10/2.0=?",
+    "answer": "5.0"
+  },
+  {
+    "question": "0/0=?",
+    "answer": "NAN"
+  },
+  {
+    "question": "9/0=?",
+    "answer": "INF"
   }
 ]

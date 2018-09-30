@@ -1,58 +1,71 @@
 const net = require('net');
 const fs = require('fs');
-const shuffle = require('shuffle-array');
-const port = 8124;
+const port = 8123;
+let qa;
+let current_question = 0;
+
 const client = new net.Socket();
 
-let arr;
-let currInd = -1;
-let servAnsw;
-
 client.setEncoding('utf8');
-client.connect(port, function () {
-    console.log('Connected');
-    fs.readFile('qa.json', (err, text) => {
-        if (!err) {
-            arr = JSON.parse(text);
-            shuffle(arr);
-            client.write('QA');
+
+client.connect(port, ()=> {
+    fs.readFile('qa.json', 'utf8', (err, data)=> {
+        if(err){
+            console.log(e);
+        }else{
+            qa = shuffle(JSON.parse(data));
+            send_request('QA');
         }
-        else {
-            console.log(err);
-        }
-    })
+    });
 });
 
-client.on('data', (data) => {
-    if(data == 'DEC') {
+client.on('data', (data)=>{
+    console.log('Server: ' + data);
+    if(data === 'DEC') {
+        client.destroy();
+    }else{
+        generate_quiz(data);
+    }
+});
+
+function generate_quiz(data){
+    if(data == 'ACK'){
+        generate_question();
+    }else{
+        check_answer(data);
+        generate_question();
+    }
+}
+
+function generate_question(){
+    if(qa.length> current_question){
+        send_request('q:' + qa[current_question].question);
+    }else{
         client.destroy();
     }
-    if(data == 'ACK') {
-        sendQuestion();
-    }
-    else {
-        if(data == '1') {
-            servAnsw = arr[currInd].goodAns;
-        }
-        else {
-            servAnsw =  arr[currInd].badAns;
-        }
-        console.log('Question: ' + arr[currInd].question);
-        console.log('Good Answer: ' + arr[currInd].goodAns);
-        console.log('Server Answer: ' + servAnsw);
-        sendQuestion();
-    }
-});
+}
 
-client.on('close', function () {
-    console.log('Connection closed');
-});
+function check_answer(num_answer){
+    console.log('///////QUESTION: '+qa[current_question].question);
+    console.log('///////RIGHT ANSWER: '+qa[current_question].answer);
+    if(num_answer == current_question){
+        console.log('Server`s answer is right');
+    }else{
+        console.log('///////SERVER`S ANSWER: '+qa[num_answer].answer);
+        console.log('///////Server`s answer is wrong');
+    }
+    current_question++;
+}
 
-function sendQuestion() {
-    if(currInd < arr.length - 1) {
-        client.write(arr[++currInd].question);
+function send_request(message){
+    client.write(message);
+    console.log('You: ' + message);
+}
+
+function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+        let j = Math.ceil(Math.random() * (i+1));
+        [a[i], a[j]] = [a[j], a[i]];
     }
-    else {
-        client.destroy();
-    }
+    return a;
 }
