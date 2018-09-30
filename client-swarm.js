@@ -1,12 +1,11 @@
-let N = process.argv[2];
-const childProcess = require('child_process').exec;
-for(let i = 0; i < N; i++){
-    childProcess('node client.js', (err, sout, serr) => {
-        if (err){
-            console.error(err);
-            return;
+const child_process = require('child_process');
+
+const clients_count = process.argv[2];
+for(let i = 0; i<clients_count; i++) {
+    child_process.exec('node client.js', (error, stdout, stderr) => {
+        if (error) {
+            console.error(`exec error: ${error}`);
         }
-        console.log(`*******   ` + i + '   *******');
-        console.log(sout);
-    })
+        console.log(`stdout: ${stdout}`);
+    });
 }
